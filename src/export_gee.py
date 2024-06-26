@@ -1,4 +1,3 @@
-#%%
 import ee
 import pandas as pd 
 import numpy as np
@@ -7,14 +6,13 @@ from folium import plugins
 import geopandas as gpd
 import geemap
 import time 
-#%%
 ee.Initialize()
 import sys
 sys.path.append('D:\\Backup\\Rouhin_Lenovo\\US_project\\GEE_SEBAL_Project\\geeSEBAL_copy_edits\\etbrasil\\')
 import geesebal
 from geesebal import (tools,landsatcollection,masks,meteorology,endmembers, 
 evapotranspiration,collection,timeseries,image,ET_Collection_mod)
-# %% Set an image and get details
+## Set an image and get details
 # Get a <10% cloudy landsat image of the central valley 
 # LANDSAT/LC08/C02/T1_L2/LC08_043034_20220402
 geometry=ee.Geometry.Point([ -121.550491,38.382768]) # Neutral to accomodate Bi1 and Vaira
@@ -43,7 +41,7 @@ day=ee.Number(date.get('day'))
 hour=ee.Number(date.get('hour'))
 minuts = ee.Number(date.get('minutes'))
 print("Time of Image ", day.getInfo(),"/",month.getInfo(),"/",year.getInfo(), "@" , hour.getInfo(), ":",minuts.getInfo())
-#%% Model
+# Model
 # image= ls.filterMetadata('system:index','equals',ls_list[n]).first()
 def runsebal(image):
         image.getInfo()
@@ -172,13 +170,13 @@ def runsebal(image):
         ##DAILY EVAPOTRANSPIRATION (ET_24H) [MM DAY-1]
         ls_trial=evapotranspiration.fexp_et(ls_trial,Rn24hobs)
         return ls_trial,col_meteorology,d_cold_pixel.get("temp").getInfo(),d_hot_pixel.get("temp").getInfo(),d_hot_pixel.get("Rn").getInfo(),d_hot_pixel.get("G").getInfo()
-#%% Run model
+# Run model
 b,met,ts_cold,ts_hot,rn_hot,g_hot=runsebal(ls_first)
 ## bstores the image
 # b_export=b.select(["B","R","GR","NIR","SWIR_1","SWIR_2",'ST_B10',"NDVI","NDWI","ALFA",'Tao_sw_1',"Rs_down","Rl_down","Rl_up","Rn","G","H","LE","ET_24h"])
 # b_export.geometry().getInfo()["coordinates"]
 # b_export.projection().getInfo()
-#%% Exporting 
+# Exporting 
 bands=["B","R","GR","NIR","SWIR_1","SWIR_2",'ST_B10',"NDVI","NDWI","ALFA",'Tao_sw_1',"Rs_down","Rl_down","Rl_up","Rn","G","H","LE","ET_24h"]
 for band in bands:
     # Select the band
@@ -199,12 +197,12 @@ for band in bands:
     task.start()
 
     print(f"Exporting {band} band to Google Drive...")
-#%% Check if task is running 
+#Check if task is running 
 import time
 while task.active():
   print('Polling for task (id: {}).'.format(task.id))
   time.sleep(5)
-#%% See if it is completed
+# See if it is completed
 def print_task_status():
     task_list = ee.batch.Task.list()
     for task in task_list:
